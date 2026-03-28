@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HELSINKI RAUTATIEASEMA — UUTISET</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@500;700&display=swap');
+
+:root {
+  --board-bg: #0d0d0d;
+  --flap-bg: #1a1a1a;
+  --flap-top: #222222;
+  --flap-btm: #161616;
+  --flap-border: #333;
+  --text-main: #f5e6c8;
+  --text-orange: #ff8c00;
+  --text-dim: #888;
+  --accent: #ff6a00;
+  --vr-rail: #2a2a2a;
+  --row-div: #2a2a2a;
+  --glow: rgba(255,140,0,0.08);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  background:#050505;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  font-family:'Share Tech Mono', monospace;
+}
+
+/* ── STATION FRAME ── */
+.station {
+  width:min(98vw, 1100px);
+  aspect-ratio: 16/10;
+  background: #0a0a0a;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 2px #1a1a1a,
+    0 0 0 4px #111,
+    0 20px 80px rgba(0,0,0,.95),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Subtle metal texture */
+.station::before {
+  content:'';
+  position:absolute; inset:0;
+  background:repeating-linear-gradient(
+    0deg, transparent 0px, transparent 3px,
+    rgba(255,255,255,.008) 3px, rgba(255,255,255,.008) 4px
+  );
+  pointer-events:none; z-index:0;
+}
+
+/* ── HEADER ── */
+.header {
+  background:#0d0d0d;
+  border-bottom:2px solid #1f1f1f;
+  padding:.4em 1.2em;
+  display:flex; align-items:center; justify-content:space-between;
+  position:relative; z-index:10;
+  flex-shrink:0;
+}
+.header-left {
+  display:flex; align-items:center; gap:1em;
+}
+.vr-logo {
+  font-family:'Teko', sans-serif;
+  font-weight:700;
+  font-size:clamp(14px,2.4vw,32px);
+  color:var(--text-orange);
+  letter-spacing:.05em;
+  line-height:1;
+}
+.vr-logo span { color:var(--text-main); }
+.station-name {
+  font-family:'Teko', sans-serif;
+  font-weight:500;
+  font-size:clamp(10px,1.6vw,21px);
+  color:var(--text-main);
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  opacity:.8;
+}
+.header-right {
+  display:flex; align-items:center; gap:1.5em;
+}
+.header-clock {
+  font-family:'Teko', sans-serif;
+  font-weight:700;
+  font-size:clamp(16px,2.8vw,38px);
+  color:var(--text-orange);
+  letter-spacing:.1em;
+  line-height:1;
+  text-shadow:0 0 20px rgba(255,140,0,.4);
+}
+.header-date {
+  font-size:clamp(7px,1vw,13px);
+  color:var(--text-dim);
+  letter-spacing:.15em;
+  text-align:right;
+  line-height:1.4;
+}
+
+/* ── COLUMN HEADERS ── */
+.col-headers {
+  background:#111;
+  border-bottom:1px solid #222;
+  display:grid;
+  grid-template-columns: 2em 1fr 5em 4em;
+  gap:0;
+  padding:0 .6em;
+  position:relative; z-index:10;
+  flex-shrink:0;
+}
+.col-hdr {
+  font-size:clamp(6px,.85vw,11px);
+  color:var(--text-dim);
+  letter-spacing:.25em;
+  padding:.3em .3em;
+  text-transform:uppercase;
+  border-right:1px solid #1a1a1a;
+}
+.col-hdr:last-child{border-right:none}
+
+/* ── BOARD ── */
+.board {
+  flex:1;
+  background:var(--board-bg);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  position:relative; z-index:5;
+  /* Ambient board glow */
+  box-shadow:inset 0 0 60px rgba(0,0,0,.8);
+}
+
+/* Each news row */
+.board-row {
+  display:grid;
+  grid-template-columns: 2em 1fr 5em 4em;
+  gap:0;
+  border-bottom:1px solid var(--row-div);
+  padding:0 .6em;
+  position:relative;
+  flex-shrink:0;
+  background:var(--board-bg);
+  transition:background .3s;
+  min-height:0;
+}
+.board-row:hover { background:#151515; }
+.board-row[style*="cursor"] .row-idx::after { content:"↗"; font-size:.7em; color:var(--text-orange); opacity:.6; }
+.board-row.active { background:#141008; }
+
+/* Row index number */
+.row-idx {
+  display:flex; align-items:center; justify-content:center;
+  font-size:clamp(7px,.9vw,11px);
+  color:#333;
+  border-right:1px solid #1f1f1f;
+  padding:.2em 0;
+}
+
+/* ── FLAP CELL ── */
+.flap-cell {
+  display:flex; align-items:center;
+  padding:.15em .3em;
+  border-right:1px solid #1f1f1f;
+  overflow:hidden;
+  min-width:0;
+}
+.flap-cell:last-child { border-right:none; }
+
+/* Individual character flap */
+.flap {
+  display:inline-block;
+  position:relative;
+  font-family:'Share Tech Mono', monospace;
+  font-size:clamp(9px,1.5vw,20px);
+  line-height:1;
+  width:.65em;
+  text-align:center;
+  color:var(--text-main);
+  /* the flip animation is applied via JS adding .flipping class */
+}
+.flap.orange { color:var(--text-orange); }
+.flap.dim    { color:var(--text-dim); }
+.flap.accent { color:var(--accent); }
+
+/* Flap flip animation */
+@keyframes flip-char {
+  0%   { transform:rotateX(0deg);   opacity:1; }
+  45%  { transform:rotateX(90deg);  opacity:0; }
+  55%  { transform:rotateX(-90deg); opacity:0; }
+  100% { transform:rotateX(0deg);   opacity:1; }
+}
+.flap.flipping {
+  animation:flip-char .12s ease-in-out forwards;
+}
+
+/* Center horizontal divider line on flap (the hinge) */
+.flap::after {
+  content:'';
+  position:absolute;
+  left:0; right:0;
+  top:50%;
+  height:1px;
+  background:rgba(0,0,0,.5);
+  pointer-events:none;
+}
+
+/* ── BOTTOM STATUS BAR ── */
+.status-bar {
+  background:#0a0a0a;
+  border-top:1px solid #1f1f1f;
+  display:flex; align-items:center;
+  padding:.25em 1em;
+  gap:1.5em;
+  flex-shrink:0;
+  position:relative; z-index:10;
+}
+.status-item {
+  display:flex; align-items:center; gap:.4em;
+  font-size:clamp(7px,.9vw,11px);
+  color:var(--text-dim);
+  letter-spacing:.1em;
+}
+.status-dot {
+  width:.5em; height:.5em; border-radius:50%;
+  background:#333;
+}
+.status-dot.green  { background:#00c853; box-shadow:0 0 6px #00c853; animation:pulse-dot 2s ease infinite; }
+.status-dot.orange { background:var(--text-orange); box-shadow:0 0 6px var(--text-orange); }
+.status-dot.red    { background:#e8001c; box-shadow:0 0 6px #e8001c; animation:pulse-dot 1s ease infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1}50%{opacity:.4} }
+
+.status-fill { flex:1; }
+.status-updated {
+  font-size:clamp(7px,.9vw,11px);
+  color:#444; letter-spacing:.1em;
+}
+
+/* Subtle scanline on whole board */
+.station::after {
+  content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(
+    0deg, transparent 0, transparent 2px,
+    rgba(0,0,0,.06) 2px, rgba(0,0,0,.06) 4px
+  );
+  pointer-events:none; z-index:50;
+}
+</style>
+</head>
+<body>
+
+<div class="station">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="vr-logo">VR<span>●</span></div>
+      <div class="station-name">Helsinki Päärautatieasema · Uutiset</div>
+    </div>
+    <div class="header-right">
+      <div>
+        <div class="header-date" id="dateDisp">— — —</div>
+      </div>
+      <div class="header-clock" id="clk">--:--:--</div>
+    </div>
+  </div>
+
+  <!-- COLUMN HEADERS -->
+  <div class="col-headers">
+    <div class="col-hdr">#</div>
+    <div class="col-hdr">UUTINEN / NEWS</div>
+    <div class="col-hdr">AIHE</div>
+    <div class="col-hdr">KLO</div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board" id="board"></div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-item"><div class="status-dot green"></div>JÄRJESTELMÄ TOIMII</div>
+    <div class="status-item"><div class="status-dot orange"></div>YLE RSS</div>
+    <div class="status-item"><div class="status-dot" id="fetchDot"></div><span id="fetchStatus">ODOTTAA</span></div>
+    <div class="status-fill"></div>
+    <div class="status-updated">PÄIVITETTY: <span id="lastUpd">--:--</span></div>
+  </div>
+
+</div>
+
+<script>
+// ── CLOCK ──────────────────────────────────────────────────────────
+(function tick(){
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    n.toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('dateDisp').textContent =
+    n.toLocaleDateString('fi-FI',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  setTimeout(tick,1000);
+})();
+
+// ── NEWS DATA ──────────────────────────────────────────────────────
+let NEWS = []; // filled by fetchNews()
+
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const FEED = 'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss';
+
+function trunc(s,n){
+  if(!s) return '';
+  s=s.replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim();
+  return s.length>n?s.slice(0,n-1)+'…':s;
+}
+function parseTime(d){
+  try{return new Date(d).toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});}catch{return '--:--';}
+}
+function mapCat(cats){
+  const s=(Array.isArray(cats)?cats.join(' '):'').toLowerCase();
+  if(/ulkomaat|kansainv|maailma|nato|venäj|ukraina|trump|israel/.test(s)) return 'ULKOMAAT';
+  if(/talous|pörssi|euro|inflaatio|yritys/.test(s)) return 'TALOUS';
+  if(/urheilu|jalkapallo|jääkiekko|hiihto|liiga|olympia/.test(s)) return 'URHEILU';
+  if(/liikenne|metro|juna|bussi|lento/.test(s)) return 'LIIKENNE';
+  return 'KOTIMAA';
+}
+
+async function fetchNews() {
+  const dot = document.getElementById('fetchDot');
+  const status = document.getElementById('fetchStatus');
+  dot.className = 'status-dot orange';
+  status.textContent = 'HAETAAN…';
+  try {
+    const r = await fetch(RSS2JSON + FEED, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message||d.status);
+
+    NEWS = d.items.map(it => ({
+      hl:   trunc((it.title||'').toUpperCase(), 55),
+      cat:  mapCat(it.categories),
+      time: parseTime(it.pubDate),
+      link: it.link || ''
+    })).filter(n=>n.hl).slice(0,8);
+
+    buildBoard();
+    // Blank then flip in
+    document.querySelectorAll('.board-row .flap').forEach(s=>{s.textContent='\u00a0';s.dataset.cur=' ';});
+    await refreshBoard(NEWS);
+
+    document.getElementById('lastUpd').textContent =
+      new Date().toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});
+    dot.className = 'status-dot green';
+    status.textContent = 'LADATTU';
+  } catch(e) {
+    dot.className = 'status-dot red';
+    status.textContent = 'VIRHE: '+e.message;
+  }
+}
+
+// ── SPLIT-FLAP ENGINE ──────────────────────────────────────────────
+const CHARSET = ' ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÅ0123456789-–—.,!?:/()%+*#@€$';
+
+// Build a DOM row of .flap spans for a given string
+function buildFlapRow(text, maxLen, colorClass) {
+  const padded = text.padEnd(maxLen,' ').slice(0,maxLen);
+  return padded.split('').map(ch => {
+    const span = document.createElement('span');
+    span.className = 'flap' + (colorClass ? ' '+colorClass : '');
+    span.textContent = ch === ' ' ? '\u00a0' : ch;
+    span.dataset.target = ch;
+    span.dataset.cur = ch;
+    return span;
+  });
+}
+
+// Animate a single flap span to a new character with a delay
+function flipTo(span, newChar, delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      span.classList.add('flipping');
+      span.addEventListener('animationend', () => {
+        span.classList.remove('flipping');
+        span.textContent = newChar === ' ' ? '\u00a0' : newChar;
+        span.dataset.cur = newChar;
+        resolve();
+      }, {once:true});
+    }, delay);
+  });
+}
+
+// Animate all flaps in a cell to new text
+async function animateFlapCell(container, newText, maxLen, colorClass, baseDelay) {
+  const spans = container.querySelectorAll('.flap');
+  const padded = newText.padEnd(maxLen,' ').slice(0,maxLen);
+  const promises = [];
+  padded.split('').forEach((ch, i) => {
+    const span = spans[i];
+    if(!span) return;
+    if(span.dataset.cur === ch) return; // no change needed
+    promises.push(flipTo(span, ch, baseDelay + i * 18));
+  });
+  await Promise.all(promises);
+}
+
+// ── BUILD BOARD ────────────────────────────────────────────────────
+const CAT_COLORS = {
+  'KOTIMAA':'orange','ULKOMAAT':'accent','TALOUS':'orange',
+  'URHEILU':'orange','SÄÄ':'dim','POLITIIKKA':'orange',
+  'LIIKENNE':'dim','TERVEYS':'dim'
+};
+
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  // Calculate how many rows fit
+  const rowH = Math.floor(board.clientHeight / NEWS.length);
+  const HL_LEN  = Math.max(20, Math.floor((board.clientWidth * 0.55) / 12.5));
+  const CAT_LEN = 10;
+  const TIME_LEN = 5;
+
+  NEWS.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'board-row';
+    row.dataset.idx = idx;
+    row.style.height = (100/NEWS.length)+'%';
+    if(item.link) { row.style.cursor='pointer'; row.addEventListener('click', ()=>window.open(item.link,'_blank','noopener')); }
+
+    // Index
+    const idxCell = document.createElement('div');
+    idxCell.className = 'row-idx';
+    idxCell.textContent = String(idx+1).padStart(2,'0');
+    row.appendChild(idxCell);
+
+    // Headline cell
+    const hlCell = document.createElement('div');
+    hlCell.className = 'flap-cell';
+    hlCell.dataset.role = 'hl';
+    buildFlapRow(item.hl, HL_LEN, '').forEach(s => hlCell.appendChild(s));
+    row.appendChild(hlCell);
+
+    // Category cell
+    const catCell = document.createElement('div');
+    catCell.className = 'flap-cell';
+    catCell.dataset.role = 'cat';
+    const catColor = CAT_COLORS[item.cat] || '';
+    buildFlapRow(item.cat, CAT_LEN, catColor).forEach(s => catCell.appendChild(s));
+    row.appendChild(catCell);
+
+    // Time cell
+    const timeCell = document.createElement('div');
+    timeCell.className = 'flap-cell';
+    timeCell.dataset.role = 'time';
+    buildFlapRow(item.time, TIME_LEN, 'dim').forEach(s => timeCell.appendChild(s));
+    row.appendChild(timeCell);
+
+    board.appendChild(row);
+  });
+}
+
+// ── REFRESH BOARD with flip animation ─────────────────────────────
+async function refreshBoard(items) {
+  const rows = document.querySelectorAll('.board-row');
+  const board = document.getElementById('board');
+  const HL_LEN  = Math.max(20, Math.floor((board.clientWidth * 0.55) / 12.5));
+  const CAT_LEN = 10;
+  const TIME_LEN = 5;
+
+  const promises = [];
+  rows.forEach((row, i) => {
+    const item = items[i];
+    if(!item) return;
+    const baseDelay = i * 80; // stagger rows
+
+    const hlCell   = row.querySelector('[data-role=hl]');
+    const catCell  = row.querySelector('[data-role=cat]');
+    const timeCell = row.querySelector('[data-role=time]');
+
+    promises.push(animateFlapCell(hlCell,   item.hl,   HL_LEN,   '',                     baseDelay));
+    promises.push(animateFlapCell(catCell,  item.cat,  CAT_LEN,  CAT_COLORS[item.cat]||'', baseDelay));
+    promises.push(animateFlapCell(timeCell, item.time, TIME_LEN, 'dim',                  baseDelay));
+  });
+
+  await Promise.all(promises);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(fetchNews, 600);
+  setInterval(fetchNews, 10*60*1000);
+
+  // Periodically re-flip a random row for that alive mechanical feel
+  setInterval(() => {
+    const rows = document.querySelectorAll('.board-row');
+    if(!rows.length || !NEWS.length) return;
+    const idx = Math.floor(Math.random() * rows.length);
+    const row = rows[idx];
+    if(!row) return;
+    row.classList.add('active');
+    setTimeout(()=>row.classList.remove('active'), 2000);
+    const board = document.getElementById('board');
+    const HL_LEN = Math.max(20, Math.floor((board.clientWidth * 0.55) / 12.5));
+    const item = NEWS[idx];
+    if(!item) return;
+    animateFlapCell(row.querySelector('[data-role=hl]'), item.hl, HL_LEN, '', 0);
+  }, 4000);
+});
+
+// Rebuild on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if(NEWS.length){ buildBoard(); refreshBoard(NEWS); } }, 200);
+});
+</script>
+</body>
+</html>

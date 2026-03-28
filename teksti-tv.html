@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEKSTI-TV P100</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #111;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.tv {
+  position: relative;
+  width: min(96vw, 960px);
+  aspect-ratio: 4 / 3.5;
+  background: #2b2016;
+  border-radius: 6% / 7%;
+  box-shadow:
+    inset 0 3px 8px rgba(255,220,140,0.07),
+    inset 0 -4px 12px rgba(0,0,0,0.6),
+    0 10px 60px rgba(0,0,0,0.9),
+    0 0 0 3px #1a1208;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3.5% 4.5% 6% 4.5%;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(80,60,30,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(0,0,0,0.4) 0%, transparent 60%);
+}
+.tv-label {
+  position: absolute; bottom: 1.8%; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'VT323', monospace;
+  font-size: clamp(9px,1.2vw,13px);
+  color: #5a4830; letter-spacing: .35em; white-space: nowrap;
+}
+.tv-knobs {
+  position: absolute; bottom: 3%; right: 5%;
+  display: flex; gap: 6px; align-items: center;
+}
+.knob {
+  width: clamp(10px,1.6vw,18px); height: clamp(10px,1.6vw,18px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #4a3820, #0e0a04);
+  border: 1px solid #2a1e0e; box-shadow: 0 2px 4px #000;
+}
+.led {
+  width: clamp(5px,.8vw,9px); height: clamp(5px,.8vw,9px);
+  border-radius: 50%; background: #00e040;
+  box-shadow: 0 0 5px #00e040, 0 0 10px rgba(0,224,64,.5);
+  animation: ledpulse 2.5s ease-in-out infinite;
+}
+@keyframes ledpulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+.bezel {
+  width: 100%; aspect-ratio: 4/3;
+  background: #000; border-radius: 3.5% / 4.5%;
+  overflow: hidden; position: relative;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.95), 0 0 0 2px #0a0805, 0 0 0 5px #181008;
+}
+.bezel::before {
+  content: ''; position: absolute; top:0;left:0;right:0;height:35%;
+  background: linear-gradient(180deg,rgba(255,255,255,.025) 0%,transparent 100%);
+  border-radius: 3.5% 3.5% 0 0 / 4.5% 4.5% 0 0; z-index:200; pointer-events:none;
+}
+.bezel::after {
+  content: ''; position: absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,.7) 100%);
+  z-index:150; pointer-events:none; border-radius:inherit;
+}
+
+.screen {
+  width:100%;height:100%; background:#000;
+  position:relative; overflow:hidden;
+  font-family:'VT323',monospace; font-size:clamp(11px,2vw,22px);
+  animation: tunein 1s ease-out;
+}
+@keyframes tunein {
+  0%  {filter:brightness(0) blur(8px);transform:scaleY(.03)}
+  40% {filter:brightness(2.5);transform:scaleY(1.03)}
+  70% {filter:brightness(.9);transform:scaleY(.99)}
+  100%{filter:brightness(1);transform:scaleY(1)}
+}
+.screen::before {
+  content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.12) 4px);
+  z-index:100; pointer-events:none;
+}
+
+.tt { width:100%;height:100%; display:grid; grid-template-rows:auto auto auto 1fr auto auto; }
+
+.tt-bar { display:flex;align-items:stretch;font-size:1.3em;line-height:1; }
+.tt-bar-yle   { background:#fff;color:#000;padding:.15em .5em;letter-spacing:.05em; }
+.tt-bar-title { background:#000;color:#fff;flex:1;padding:.15em .5em;letter-spacing:.08em; }
+.tt-bar-page  { background:#000;color:#ff0;padding:.15em .5em;letter-spacing:.1em; }
+.tt-bar-clock { background:#000;color:#0ff;padding:.15em .5em;min-width:5.5em;text-align:right; }
+
+.tt-nav {
+  background:#000;color:#0ff;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 .5em;font-size:.9em;
+  border-top:1px solid #333;border-bottom:1px solid #333;line-height:1.5;
+}
+.tt-nav-date{color:#fff} .tt-nav-src{color:#0f0}
+.dots{display:flex;gap:.4em;align-items:center}
+.dot{width:.45em;height:.45em;border-radius:50%;background:#333}
+.dot.on{background:#ff0}
+
+.tt-section { background:#c00;color:#fff;font-size:.85em;padding:0 .5em;letter-spacing:.15em;line-height:1.5; }
+
+.tt-content { padding:.25em .5em 0;overflow:hidden;display:flex;flex-direction:column; }
+
+.news { border-bottom:1px solid #222;padding:.28em 0;animation:ni .3s ease forwards;opacity:0; }
+.news:last-child{border-bottom:none}
+@keyframes ni{from{opacity:0}to{opacity:1}}
+
+.news-hl   { color:#ff0;font-size:1.05em;line-height:1.2; }
+.news-body { color:#fff;font-size:.88em;line-height:1.25;margin-top:.05em; }
+.news-time { color:#0ff;font-size:.78em; }
+
+.cat{display:inline-block;color:#000;font-size:.78em;padding:0 .35em;margin-right:.4em;vertical-align:middle}
+.cat-kotimaa{background:#f00}.cat-kansainvalinen{background:#080}
+.cat-talous{background:#a60}.cat-urheilu{background:#00c}.cat-muu{background:#666}
+
+.tt-pager {
+  background:#000;color:#0ff;font-size:.82em;padding:0 .5em;
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid #333;line-height:1.5;
+}
+
+.tt-ticker { background:#000;border-top:2px solid #ff0;display:flex;align-items:center;overflow:hidden;height:1.7em; }
+.ticker-lbl { background:#ff0;color:#000;font-size:.88em;padding:0 .5em;height:100%;display:flex;align-items:center;flex-shrink:0;letter-spacing:.08em; }
+.ticker-inner{overflow:hidden;flex:1;height:100%}
+.ticker-txt {
+  display:inline-block;white-space:nowrap;color:#fff;
+  font-size:.85em;line-height:1.7em;padding-left:3em;
+  animation:scroll 55s linear infinite;
+}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.tt-status{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5em;color:#0ff}
+.blink{animation:bl 1s step-end infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
+.err{color:#f55;text-align:center;line-height:1.6}
+.retry{background:#000;border:1px solid #0ff;color:#0ff;font-family:'VT323',monospace;font-size:1em;padding:.1em .8em;cursor:pointer;letter-spacing:.1em;margin-top:.4em}
+.retry:hover{background:#0ff;color:#000}
+</style>
+</head>
+<body>
+
+<div class="tv">
+  <div class="tv-label">NORDOVISION · NV-100 · SUOMI / FINLAND</div>
+  <div class="tv-knobs">
+    <div class="knob"></div><div class="knob"></div><div class="led"></div>
+  </div>
+  <div class="bezel">
+    <div class="screen">
+      <div class="tt">
+        <div class="tt-bar">
+          <span class="tt-bar-yle">YLE</span>
+          <span class="tt-bar-title">TEKSTI-TV · UUTISET / NEWS</span>
+          <span class="tt-bar-page" id="pgNum">P100</span>
+          <span class="tt-bar-clock" id="clk">--:--:--</span>
+        </div>
+        <div class="tt-nav">
+          <span class="tt-nav-date" id="dateTxt">…</span>
+          <div class="dots" id="dots"></div>
+          <span class="tt-nav-src">YLE · RSS</span>
+        </div>
+        <div class="tt-section">■ PÄIVÄN UUTISET / TODAY'S NEWS</div>
+        <div class="tt-content" id="newsArea">
+          <div class="tt-status">
+            <div>HAETAAN UUTISIA…</div>
+            <div style="color:#fff;font-size:.9em">FETCHING NEWS…</div>
+            <div class="blink" style="color:#ff0;font-size:1.5em">█</div>
+          </div>
+        </div>
+        <div class="tt-pager">
+          <span>PÄIVITETTY: <span id="lastUpd" style="color:#ff0">--:--</span></span>
+          <span style="color:#ff0">8 SEK ▶ SEURAAVA SIVU</span>
+        </div>
+        <div class="tt-ticker">
+          <div class="ticker-lbl">◀ UUTISVIRTA</div>
+          <div class="ticker-inner">
+            <span class="ticker-txt" id="tickTxt">
+              ODOTA · LOADING · · · · · · · · · · · · · · · · ODOTA · LOADING · · · · · · · · · · · · · ·
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Clock
+(function tick() {
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    n.toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('dateTxt').textContent =
+    n.toLocaleDateString('fi-FI',{weekday:'short',day:'numeric',month:'numeric',year:'numeric'}).toUpperCase();
+  setTimeout(tick, 1000);
+})();
+
+let pages=[], cur=0, cyc=null;
+
+function trunc(s, n) {
+  if(!s) return '';
+  s = s.replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').trim();
+  return s.length > n ? s.slice(0,n-1)+'…' : s;
+}
+function parseTime(d) {
+  if(!d) return '';
+  try { return new Date(d).toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'}); }
+  catch { return ''; }
+}
+function mapCat(categories) {
+  const s = (Array.isArray(categories) ? categories.join(' ') : '').toLowerCase();
+  if(/ulkomaat|kansainv|maailma|nato|eu |yhdysvall|venäj|ukraina|trump|israel|palestiina/.test(s)) return 'KANSAINVALINEN';
+  if(/talous|markkinat|pörssi|euro|inflaatio|yritys|elinkein/.test(s)) return 'TALOUS';
+  if(/urheilu|jalkapallo|jääkiekko|hiihto|mm-|em-|liiga|olympia/.test(s)) return 'URHEILU';
+  return 'KOTIMAA';
+}
+
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const FEED = 'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss';
+
+async function fetchNews() {
+  setStatus('loading');
+  let items = null, lastErr = '';
+
+  try {
+      const r = await fetch(RSS2JSON + FEED, {cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      if(d.status !== 'ok') throw new Error(d.message || d.status);
+      if(!d.items?.length) throw new Error('empty');
+
+      items = d.items.map(it => ({
+        hl:   trunc((it.title||'').toUpperCase(), 55),
+        body: trunc(it.description || it.content || '', 110),
+        cat:  mapCat(it.categories),
+        time: parseTime(it.pubDate),
+        link: it.link || ''
+      })).filter(n => n.hl);
+
+  } catch(e) { lastErr = e.message; }
+
+  if(!items?.length) { setStatus('error', lastErr); return; }
+
+  render(items);
+  document.getElementById('lastUpd').textContent =
+    new Date().toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});
+}
+
+function render(items) {
+  pages = [];
+  for(let i=0;i<items.length;i+=4) pages.push(items.slice(i,i+4));
+
+  const td = items.map(n=>n.hl).join('  ◆  ');
+  document.getElementById('tickTxt').textContent = td+'  ◆  '+td;
+  document.getElementById('dots').innerHTML =
+    pages.map((_,i)=>`<span class="dot${i===0?' on':''}" id="d${i}"></span>`).join('');
+
+  cur=0; showPage(0);
+  if(cyc) clearInterval(cyc);
+  cyc = setInterval(()=>{ cur=(cur+1)%pages.length; showPage(cur); }, 8000);
+}
+
+function showPage(idx) {
+  document.getElementById('pgNum').textContent = ['P100','P101','P102','P103'][idx] || `P${100+idx}`;
+  document.getElementById('newsArea').innerHTML = pages[idx].map((n,i)=>{
+    const ck = (n.cat||'MUU').toLowerCase()
+      .replace(/ä/g,'a').replace(/ö/g,'o').replace(/å/g,'a').replace(/\s/g,'');
+    return `<div class="news" style="animation-delay:${i*.07}s">
+      <div class="news-hl"><span class="cat cat-${ck}">${n.cat}</span>${n.link ? `<a href="${n.link}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,0,0.3)">${n.hl}</a>` : n.hl}</div>
+      <div class="news-body">${n.body}</div>
+      <div class="news-time">${n.time}</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('#dots .dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+}
+
+function setStatus(type, msg) {
+  document.getElementById('newsArea').innerHTML = type==='loading'
+    ? `<div class="tt-status"><div>HAETAAN UUTISIA…</div><div style="color:#fff;font-size:.9em">FETCHING NEWS…</div><div class="blink" style="color:#ff0;font-size:1.5em">█</div></div>`
+    : `<div class="tt-status"><div class="err">⚠ VIRHE / ERROR<br><br>Uutisia ei voitu ladata.<br><small style="color:#555">${msg||''}</small></div><button class="retry" onclick="fetchNews()">↺ YRITÄ UUDELLEEN / RETRY</button></div>`;
+}
+
+setTimeout(fetchNews, 1100);
+setInterval(fetchNews, 10*60*1000);
+</script>
+</body>
+</html>

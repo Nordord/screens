@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UUTIS-TV SHOP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Oswald:wght@700&family=Special+Elite&display=swap');
+
+:root {
+  --teal: #00b4b4;
+  --yellow: #ffe600;
+  --red: #e8001c;
+  --white: #ffffff;
+  --dark: #0a0a1a;
+  --orange: #ff6a00;
+  --green: #00d44a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background:#000;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Oswald', sans-serif;
+}
+
+/* ── OUTER TV FRAME ── */
+.tv {
+  position:relative;
+  width:min(96vw, 1000px);
+  aspect-ratio: 4/3.4;
+  background: linear-gradient(160deg, #8B7355 0%, #5C4A2A 50%, #3D2F15 100%);
+  border-radius: 5%/6%;
+  box-shadow:
+    0 0 0 3px #2a1f0a,
+    0 8px 50px rgba(0,0,0,.95),
+    inset 0 2px 6px rgba(255,200,80,.08);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding: 3% 4% 5.5% 4%;
+}
+
+.tv::before {
+  content:'';
+  position:absolute; inset:0;
+  background: repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,.04) 3px, rgba(0,0,0,.04) 6px);
+  border-radius:inherit; pointer-events:none;
+}
+
+.tv-brand {
+  position:absolute; bottom:1.8%; left:50%;
+  transform:translateX(-50%);
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(8px,1.1vw,13px);
+  color:#7a6040; letter-spacing:.4em; white-space:nowrap;
+}
+.tv-controls {
+  position:absolute; bottom:2.5%; right:4.5%;
+  display:flex; gap:5px; align-items:center;
+}
+.knob {
+  width:clamp(9px,1.5vw,17px); height:clamp(9px,1.5vw,17px);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 32%, #6a5030, #1a1005);
+  border:1px solid #2a1a08; box-shadow:0 2px 4px #000;
+}
+.led {
+  width:clamp(5px,.8vw,8px); height:clamp(5px,.8vw,8px);
+  border-radius:50%; background:var(--red);
+  box-shadow:0 0 6px var(--red), 0 0 12px rgba(232,0,28,.5);
+  animation:blink-led 1.2s ease-in-out infinite;
+}
+@keyframes blink-led { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── BEZEL ── */
+.bezel {
+  width:100%; aspect-ratio:4/3;
+  background:#000; border-radius:3%/4%;
+  overflow:hidden; position:relative;
+  box-shadow: inset 0 0 50px rgba(0,0,0,.9), 0 0 0 3px #1a1005, 0 0 0 6px #0d0a00;
+}
+.bezel::after {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,.65) 100%);
+  z-index:200; pointer-events:none; border-radius:inherit;
+}
+/* scanlines */
+.bezel::before {
+  content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(0,0,0,.15) 3px, rgba(0,0,0,.15) 4px);
+  z-index:201; pointer-events:none;
+}
+
+/* ── SCREEN ── */
+.screen {
+  width:100%; height:100%;
+  position:relative; overflow:hidden;
+  animation:tunein .8s ease-out;
+}
+@keyframes tunein {
+  0%  {filter:brightness(0) blur(10px);transform:scaleY(.02)}
+  35% {filter:brightness(3);transform:scaleY(1.04)}
+  65% {filter:brightness(.85);transform:scaleY(.99)}
+  100%{filter:brightness(1);transform:scaleY(1)}
+}
+
+/* CHROMA-KEY TEAL BACKGROUND — the 90s TV shop signature */
+.bg {
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 40% 45%, #00d4d4 0%, #009999 40%, #006666 100%);
+}
+
+/* Diagonal stripe overlay — very 90s */
+.bg::after {
+  content:'';
+  position:absolute; inset:0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px, transparent 18px,
+    rgba(0,0,0,.04) 18px, rgba(0,0,0,.04) 20px
+  );
+}
+
+/* ── LAYOUT ── */
+.layout {
+  position:relative; z-index:10;
+  width:100%; height:100%;
+  display:grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap:0;
+}
+
+/* TOP BAR */
+.top-bar {
+  background:var(--dark);
+  display:flex; align-items:stretch;
+  border-bottom:4px solid var(--yellow);
+}
+.top-logo {
+  background:var(--red);
+  color:var(--white);
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(12px,2.2vw,26px);
+  padding:.2em .6em;
+  letter-spacing:.05em;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.5);
+  display:flex; align-items:center; gap:.3em;
+}
+.top-logo .dot { color:var(--yellow); }
+.top-tagline {
+  background:#111;
+  color:var(--yellow);
+  font-size:clamp(8px,1.1vw,13px);
+  padding:.2em .6em;
+  letter-spacing:.2em;
+  display:flex; align-items:center;
+  flex:1;
+  text-transform:uppercase;
+}
+.top-clock {
+  background:var(--dark);
+  color:var(--green);
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(11px,1.8vw,21px);
+  padding:.2em .5em;
+  display:flex; align-items:center;
+  letter-spacing:.1em;
+  border-left:2px solid #333;
+}
+
+/* MAIN CONTENT AREA */
+.main {
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap:0;
+  padding:clamp(4px,.8vw,10px);
+  overflow:hidden;
+}
+
+/* NEWS COLUMN */
+.news-col { display:flex; flex-direction:column; gap:clamp(3px,.5vw,7px); overflow:hidden; }
+
+.breaking-banner {
+  background:var(--red);
+  color:#fff;
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(9px,1.4vw,17px);
+  padding:.15em .5em;
+  letter-spacing:.15em;
+  display:flex; align-items:center; gap:.5em;
+  animation:flash-red 1s step-end infinite;
+}
+@keyframes flash-red { 0%,100%{background:var(--red)} 50%{background:#aa0012} }
+.breaking-bang { color:var(--yellow); animation:spin 2s linear infinite; display:inline-block; }
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.news-item {
+  background:rgba(0,0,0,.75);
+  border-left:4px solid var(--yellow);
+  padding:clamp(3px,.5vw,7px) clamp(4px,.7vw,10px);
+  animation:slidein .4s ease forwards;
+  opacity:0;
+  position:relative;
+}
+.news-item.featured {
+  border-left-color:var(--red);
+  background:rgba(0,0,0,.88);
+}
+@keyframes slidein{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+.news-cat {
+  font-size:clamp(7px,.9vw,11px);
+  letter-spacing:.2em;
+  margin-bottom:.1em;
+  text-transform:uppercase;
+}
+.cat-kotimaa    { color:#ff9933; }
+.cat-ulkomaat   { color:#66ffaa; }
+.cat-talous     { color:#ffff66; }
+.cat-urheilu    { color:#66aaff; }
+.cat-saa        { color:#aaffff; }
+
+.news-hl {
+  color:var(--white);
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(9px,1.4vw,17px);
+  line-height:1.15;
+  text-shadow:1px 1px 3px rgba(0,0,0,.8);
+}
+.news-body {
+  color:rgba(255,255,255,.85);
+  font-family:'Special Elite', serif;
+  font-size:clamp(7px,.95vw,12px);
+  line-height:1.3;
+  margin-top:.15em;
+}
+.news-time {
+  color:var(--green);
+  font-size:clamp(6px,.8vw,10px);
+  margin-top:.1em;
+  letter-spacing:.1em;
+}
+
+/* SIDEBAR — the TV shop gold: starburst price tags, phone nr, offers */
+.sidebar {
+  width:clamp(70px,12vw,150px);
+  display:flex; flex-direction:column;
+  gap:clamp(4px,.6vw,8px);
+  padding-left:clamp(4px,.6vw,8px);
+  align-items:center;
+}
+
+.starburst {
+  position:relative;
+  width:clamp(55px,9vw,115px);
+  aspect-ratio:1;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  animation:wobble 3s ease-in-out infinite;
+}
+.starburst:nth-child(2){animation-delay:.8s}
+.starburst:nth-child(3){animation-delay:1.6s}
+@keyframes wobble{0%,100%{transform:rotate(-2deg)scale(1)}50%{transform:rotate(2deg)scale(1.04)}}
+
+/* CSS starburst using clip-path */
+.starburst::before {
+  content:'';
+  position:absolute; inset:0;
+  background:var(--yellow);
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  z-index:0;
+}
+.starburst.red::before { background:var(--red); }
+.starburst.orange::before { background:var(--orange); }
+
+.starburst-inner {
+  position:relative; z-index:1;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.sb-top {
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(6px,.8vw,10px);
+  color:#000; letter-spacing:.05em; line-height:1;
+  text-transform:uppercase;
+}
+.starburst.red .sb-top, .starburst.orange .sb-top { color:#fff; }
+.sb-main {
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(8px,1.3vw,16px);
+  color:#000; line-height:1; text-align:center;
+}
+.starburst.red .sb-main, .starburst.orange .sb-main { color:#fff; }
+.sb-sub {
+  font-size:clamp(5px,.65vw,8px);
+  color:#222; letter-spacing:.04em;
+}
+.starburst.red .sb-sub, .starburst.orange .sb-sub { color:rgba(255,255,255,.8); }
+
+.phone-box {
+  background:var(--dark);
+  border:2px solid var(--green);
+  color:var(--green);
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(7px,1vw,12px);
+  padding:.3em .4em;
+  text-align:center;
+  line-height:1.4;
+  width:100%;
+  box-shadow:0 0 8px rgba(0,212,74,.3);
+}
+.phone-nr {
+  color:var(--yellow);
+  font-size:clamp(9px,1.3vw,15px);
+  display:block;
+}
+
+/* BOTTOM TICKER */
+.ticker-bar {
+  background:var(--dark);
+  border-top:3px solid var(--yellow);
+  display:flex; align-items:center;
+  height:clamp(16px,2.5vw,30px);
+  overflow:hidden;
+}
+.ticker-label {
+  background:var(--yellow);
+  color:#000;
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(8px,1.1vw,13px);
+  padding:0 .6em;
+  height:100%; display:flex; align-items:center;
+  flex-shrink:0; letter-spacing:.1em; white-space:nowrap;
+}
+.ticker-inner { overflow:hidden; flex:1; height:100%; }
+.ticker-txt {
+  display:inline-block; white-space:nowrap;
+  color:var(--white);
+  font-size:clamp(8px,1.05vw,13px);
+  line-height:clamp(16px,2.5vw,30px);
+  padding-left:4em;
+  animation:ticker 45s linear infinite;
+}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SOITA NYT flash banner */
+.soita-bar {
+  background:var(--red);
+  border-top:2px solid var(--dark);
+  display:flex; align-items:center; justify-content:center;
+  gap:1em;
+  height:clamp(14px,2.2vw,26px);
+  animation:soita-flash .6s step-end infinite;
+}
+@keyframes soita-flash{0%,100%{background:var(--red)}50%{background:#ff3355}}
+.soita-txt {
+  font-family:'Russo One', sans-serif;
+  font-size:clamp(8px,1.1vw,14px);
+  color:var(--yellow);
+  letter-spacing:.2em;
+  text-shadow:1px 1px 0 rgba(0,0,0,.5);
+}
+.soita-star { color:#fff; animation:spin .8s linear infinite; display:inline-block; }
+</style>
+</head>
+<body>
+
+<div class="tv">
+  <div class="tv-brand">NORDOVISION · NV-200S · SUOMI/FINLAND</div>
+  <div class="tv-controls">
+    <div class="knob"></div><div class="knob"></div><div class="led"></div>
+  </div>
+
+  <div class="bezel">
+    <div class="screen">
+      <div class="bg"></div>
+
+      <div class="layout">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+          <div class="top-logo">📺 UUTIS<span class="dot">●</span>TV <span style="font-size:.7em;color:#aaa">SHOP</span></div>
+          <div class="top-tagline">■ SUOMEN LUOTETTAVIN UUTISKANAVA ■</div>
+          <div class="top-clock" id="clk">--:--:--</div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+
+          <!-- NEWS -->
+          <div class="news-col" id="newsCol">
+            <!-- filled by JS -->
+          </div>
+
+          <!-- SIDEBAR -->
+          <div class="sidebar">
+
+            <div class="starburst red">
+              <div class="starburst-inner">
+                <span class="sb-top">UUSI!</span>
+                <span class="sb-main">24H<br>UUTISET</span>
+                <span class="sb-sub">LIVE</span>
+              </div>
+            </div>
+
+            <div class="starburst orange">
+              <div class="starburst-inner">
+                <span class="sb-top">VAIN</span>
+                <span class="sb-main">9,90<br>mk/min</span>
+                <span class="sb-sub">alv 0%</span>
+              </div>
+            </div>
+
+            <div class="starburst">
+              <div class="starburst-inner">
+                <span class="sb-top">NYT!</span>
+                <span class="sb-main">TILAA<br>NETTI</span>
+                <span class="sb-sub">ilm.koe</span>
+              </div>
+            </div>
+
+            <div class="phone-box">
+              SOITA<br>
+              <span class="phone-nr">0700-UUTIS</span>
+              <span style="font-size:.8em;opacity:.7">puh. 2mk/min</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SOITA NYT BAR -->
+        <div class="soita-bar">
+          <span class="soita-star">★</span>
+          <span class="soita-txt">SOITA NYT! · TILAA UUTISPALVELU · VAIN 9,90 MK/MIN · SOITA NYT!</span>
+          <span class="soita-star">★</span>
+        </div>
+
+        <!-- TICKER -->
+        <div class="ticker-bar">
+          <div class="ticker-label">◀ PIKAUUTISET</div>
+          <div class="ticker-inner">
+            <span class="ticker-txt" id="tickTxt"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Clock
+(function tick(){
+  document.getElementById('clk').textContent =
+    new Date().toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  setTimeout(tick,1000);
+})();
+
+let cur=0, cyc=null, pages=[];
+const PER_PAGE = 3;
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const FEED = 'https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss';
+
+function trunc(s,n){
+  if(!s) return '';
+  s=s.replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim();
+  return s.length>n?s.slice(0,n-1)+'…':s;
+}
+function parseTime(d){
+  if(!d) return '';
+  try{return new Date(d).toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'});}catch{return '';}
+}
+function mapCat(cats){
+  const s=(Array.isArray(cats)?cats.join(' '):'').toLowerCase();
+  if(/ulkomaat|kansainv|maailma|nato|venäj|ukraina|trump|israel/.test(s)) return 'ULKOMAAT';
+  if(/talous|pörssi|euro|inflaatio|yritys/.test(s)) return 'TALOUS';
+  if(/urheilu|jalkapallo|jääkiekko|hiihto|liiga|olympia/.test(s)) return 'URHEILU';
+  return 'KOTIMAA';
+}
+
+async function fetchNews(){
+  try {
+    const r = await fetch(RSS2JSON + FEED, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    if(d.status !== 'ok') throw new Error(d.message||d.status);
+
+    const items = d.items.map((it,i) => ({
+      cat:      mapCat(it.categories),
+      hl:       trunc((it.title||'').toUpperCase(), 60),
+      body:     trunc(it.description||it.content||'', 120),
+      time:     parseTime(it.pubDate),
+      link:     it.link || '',
+      featured: i===0
+    })).filter(n=>n.hl);
+
+    pages=[];
+    for(let i=0;i<items.length;i+=PER_PAGE) pages.push(items.slice(i,i+PER_PAGE));
+
+    const tickerLine = items.map(n=>n.hl).join('  ★  ');
+    document.getElementById('tickTxt').textContent = tickerLine+'  ★  '+tickerLine;
+
+    cur=0; showPage(0);
+    if(cyc) clearInterval(cyc);
+    cyc = setInterval(()=>{ cur=(cur+1)%pages.length; showPage(cur); }, 7000);
+
+  } catch(e) {
+    document.getElementById('newsCol').innerHTML =
+      `<div class="breaking-banner"><span class="breaking-bang">★</span> YHTEYSVIRHE / ERROR <span class="breaking-bang">★</span></div>
+       <div class="news-item"><div class="news-hl" style="color:#fff">Uutisia ei voitu ladata</div><div class="news-body">${e.message}</div>
+       <div class="news-time"><button onclick="fetchNews()" style="background:none;border:1px solid #ff0;color:#ff0;font-family:inherit;cursor:pointer;padding:.2em .6em">↺ YRITÄ UUDELLEEN</button></div></div>`;
+  }
+}
+
+function showPage(idx){
+  const col = document.getElementById('newsCol');
+  let html = `<div class="breaking-banner"><span class="breaking-bang">★</span> TÄRKEIMMÄT UUTISET / TOP NEWS <span class="breaking-bang">★</span></div>`;
+  pages[idx].forEach((n,i) => {
+    html += `<div class="news-item${n.featured?' featured':''}" style="animation-delay:${i*.12}s">
+      <div class="news-cat cat-${n.cat.toLowerCase()}">${n.cat}</div>
+      <div class="news-hl">${n.link ? `<a href="${n.link}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:2px solid rgba(255,230,0,0.4)">${n.hl}</a>` : n.hl}</div>
+      <div class="news-body">${n.body}</div>
+      <div class="news-time">◆ ${n.time}</div>
+    </div>`;
+  });
+  col.innerHTML = html;
+}
+
+fetchNews();
+setInterval(fetchNews, 10*60*1000);
+</script>
+</body>
+</html>
